@@ -89,7 +89,7 @@ function GetURLParameter(sParam) {
   }
 }
 var to = GetURLParameter("to");
-document.getElementById("nama").innerHTML = to ? decodeURI(to) : "-";
+document.getElementById("namaTamu").innerHTML = to ? decodeURI(to) : "-";
 
 // hover blur effect
 $('.blur').mouseenter(function(){
