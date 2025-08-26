@@ -828,6 +828,45 @@
       once: true,
     });
   </script>
+  <script type="module">
+  // Import Firebase
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // Konfigurasi Firebase (ganti dengan config project kamu)
+  const firebaseConfig = {
+    apiKey: "API_KEY",
+    authDomain: "https://undangan-pernikahan-93dd7.web.app",
+    projectId: "undangan-pernikahan-93dd7",
+    storageBucket: "https://console.firebase.google.com/project/undangan-pernikahan-93dd7/database/undangan-pernikahan-93dd7-default-rtdb/data/~2F",
+    messagingSenderId: "SENDER_ID",
+    appId: "APP_ID"
+  };
+
+  // Init Firebase
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Tangkap form ucapan
+  const form = document.getElementById("messagesList");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const nama = document.getElementById("nama").value;
+    const pesan = document.getElementById("ucapan").value;
+
+    try {
+      await addDoc(collection(db, "ucapan"), {
+        nama: nama,
+        pesan: pesan,
+        waktu: new Date()
+      });
+      alert("Ucapan berhasil dikirim!");
+      form.reset();
+    } catch (error) {
+      console.error("Error tambah data: ", error);
+    }
+  });
+</script>
 </body>
 
 </html>
