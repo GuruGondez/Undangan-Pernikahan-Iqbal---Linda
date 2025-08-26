@@ -758,22 +758,32 @@
 
   // Submit form ucapan
   form.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const nama = document.getElementById("nama").value;
-    const ucapan = document.getElementById("ucapan").value;
-    const kehadiran = form.querySelector("input[name='kehadiran']:checked").value;
+  const nama = document.getElementById("nama").value.trim();
+  const ucapan = document.getElementById("ucapan").value.trim();
+  const kehadiranEl = form.querySelector("input[name='kehadiran']:checked");
 
-    // Simpan ke database
+  if (!nama || !ucapan || !kehadiranEl) {
+    alert("Harap isi semua kolom terlebih dahulu!");
+    return;
+  }
+
+  const kehadiran = kehadiranEl.value;
+
+  try {
     await push(ref(db, "ucapan"), {
       nama,
       ucapan,
       kehadiran,
       waktu: new Date().toISOString()
     });
-
     form.reset();
-  });
+  } catch (error) {
+    console.error("Gagal menyimpan data:", error);
+    alert("Terjadi kesalahan saat menyimpan data!");
+  }
+});
 
   // Realtime listener
   onValue(ref(db, "ucapan"), (snapshot) => {
