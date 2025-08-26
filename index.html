@@ -653,106 +653,7 @@
                       </div>
                   </div>
               </div>
-          </div>
-
-          <script>
-              let guests = [];
-              let hadirCount = 0;
-              let tidakHadirCount = 0;
-
-              function updateStatistics() {
-                  document.getElementById('hadirCount').textContent = hadirCount;
-                  document.getElementById('tidakHadirCount').textContent = tidakHadirCount;
-              }
-
-              function renderMessages() {
-                  const messagesList = document.getElementById('messagesList');
-                  
-                  if (guests.length === 0) {
-                      messagesList.innerHTML = `
-                          <div class="text-center text-white py-8">
-                              <div class="text-white mb-3">💌</div>
-                              <p>Belum ada ucapan. Jadilah yang pertama!</p>
-                          </div>
-                      `;
-                      return;
-                  }
-
-                  messagesList.innerHTML = guests.map(guest => `
-                      <div class="bg-white/60 p-4 rounded-lg border border-mahogany-100 shadow-sm">
-                          <div class="flex justify-between items-start mb-2">
-                              <h3 class="font-dancing text-white">${guest.nama}</h3>
-                              <span class="text-xs px-2 py-1 rounded-full ${
-                                  guest.kehadiran === 'Hadir' 
-                                      ? 'bg-green-100 text-green-700' 
-                                      : 'bg-red-100 text-red-700'
-                              }">
-                                  ${guest.kehadiran === 'Hadir' ? '✅' : '❌'} ${guest.kehadiran}
-                              </span>
-                          </div>
-                          <p class="text-white text-sm leading-relaxed">${guest.ucapan}</p>
-                          <div class="text-xs text-white mt-2">${guest.waktu}</div>
-                      </div>
-                  `).join('');
-              }
-
-              document.getElementById('guestForm').addEventListener('submit', function(e) {
-                  e.preventDefault();
-                  
-                  const formData = new FormData(this);
-                  const nama = formData.get('nama').trim();
-                  const ucapan = formData.get('ucapan').trim();
-                  const kehadiran = formData.get('kehadiran');
-
-                  if (!nama || !ucapan || !kehadiran) {
-                      alert('Mohon lengkapi semua field!');
-                      return;
-                  }
-
-                  const newGuest = {
-                      nama: nama,
-                      ucapan: ucapan,
-                      kehadiran: kehadiran,
-                      waktu: new Date().toLocaleString('id-ID', {
-                          day: '2-digit',
-                          month: '2-digit', 
-                          year: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                      })
-                  };
-
-                  guests.unshift(newGuest);
-
-                  if (kehadiran === 'Hadir') {
-                      hadirCount++;
-                  } else {
-                      tidakHadirCount++;
-                  }
-
-                  updateStatistics();
-                  renderMessages();
-
-                  // Reset form
-                  this.reset();
-
-                  // Show success message
-                  const button = this.querySelector('button[type="submit"]');
-                  const originalText = button.textContent;
-                  button.textContent = '✅ Terkirim!';
-                  button.classList.add('bg-green-600');
-                  
-                  setTimeout(() => {
-                      button.textContent = originalText;
-                      button.classList.remove('bg-green-600');
-                  }, 2000);
-              });
-
-              // Initialize
-              updateStatistics();
-              renderMessages();
-          </script>
-      <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'974c6792b69b9f97',t:'MTc1NjEzODY5OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
+        </div>
       </div>
     </div>
   </section>
@@ -829,60 +730,100 @@
     });
   </script>
   <script type="module">
-  // Import Firebase
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { getDatabase, ref, push, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-  // Konfigurasi Firebase (ganti dengan config project kamu)
+  // Konfigurasi Firebase
   const firebaseConfig = {
-    apiKey: "API_KEY",
+    apiKey: "AIzaSyDCSa1nxz4LPp5Ig3dobPnHm-ueu3sTtJY",
     authDomain: "undangan-pernikahan-93dd7.firebaseapp.com",
     databaseURL: "https://undangan-pernikahan-93dd7-default-rtdb.firebaseio.com",
     projectId: "undangan-pernikahan-93dd7",
     storageBucket: "undangan-pernikahan-93dd7.appspot.com",
-    messagingSenderId: "SENDER_ID",
-    appId: "APP_ID"
+    messagingSenderId: "713757561680",
+    appId: "1:713757561680:web:1e3bdd19b498e2012a9255"
   };
 
   // Init Firebase
   const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
+  const db = getDatabase(app);
 
-  // Tangkap form ucapan
-  const form = document.getElementById("messagesList");
-  form.addEventListener("submit", async) (e) => {
+  // Elemen form & list
+  const form = document.getElementById("guestForm");
+  const messagesList = document.getElementById("messagesList");
+
+  // Elemen statistik
+  const hadirCountEl = document.getElementById("hadirCount");
+  const tidakHadirCountEl = document.getElementById("tidakHadirCount");
+
+  // Submit form ucapan
+  form.addEventListener("submit", async (e) => {
     e.preventDefault();
+
     const nama = document.getElementById("nama").value;
-    const pesan = document.getElementById("ucapan").value;
-    }
-    try {
-      await addDoc(collection(db, "ucapan"), {
-        nama: nama,
-        pesan: pesan,
-        waktu: new Date()
-      });
-      alert("Ucapan berhasil dikirim!");
-      form.reset();
-    } catch (error) {
-      console.error("Error tambah data: ", error);
-    }
-    push(ref(db, "ucapan"), {
-      nama: nama,
-      pesan: pesan,
+    const ucapan = document.getElementById("ucapan").value;
+    const kehadiran = form.querySelector("input[name='kehadiran']:checked").value;
+
+    // Simpan ke database
+    await push(ref(db, "ucapan"), {
+      nama,
+      ucapan,
+      kehadiran,
       waktu: new Date().toISOString()
     });
 
     form.reset();
-    const messagesList = document.getElementById("messagesList");
+  });
 
+  // Realtime listener
   onValue(ref(db, "ucapan"), (snapshot) => {
     messagesList.innerHTML = "";
+    let hadirCount = 0;
+    let tidakHadirCount = 0;
+
+    if (!snapshot.exists()) {
+      messagesList.innerHTML = `<div class="text-center text-white py-8">
+        <div class="text-white mb-3">💌</div>
+        <p>Belum ada ucapan. Jadilah yang pertama!</p>
+      </div>`;
+      hadirCountEl.textContent = "0";
+      tidakHadirCountEl.textContent = "0";
+      return;
+    }
+
     snapshot.forEach((childSnapshot) => {
       const data = childSnapshot.val();
-      const li = document.createElement("li");
-      li.innerHTML = `<strong>${data.nama}</strong>: ${data.ucapan} <em>(${new Date(data.waktu).toLocaleString()})</em>`;
-      messagesList.appendChild(li);
+
+      // Hitung statistik
+      if (data.kehadiran === "Hadir") {
+        hadirCount++;
+      } else {
+        tidakHadirCount++;
+      }
+
+      // Tampilkan ucapan
+      const div = document.createElement("div");
+      div.className = "bg-white/60 p-4 rounded-lg border border-mahogany-100 shadow-sm";
+      div.innerHTML = `
+        <div class="flex justify-between items-start mb-2">
+          <h3 class="font-dancing text-white">${data.nama}</h3>
+          <span class="text-xs px-2 py-1 rounded-full ${
+            data.kehadiran === 'Hadir'
+              ? 'bg-green-100 text-green-700'
+              : 'bg-red-100 text-red-700'
+          }">
+            ${data.kehadiran === 'Hadir' ? '✅' : '❌'} ${data.kehadiran}
+          </span>
+        </div>
+        <p class="text-white text-sm leading-relaxed">${data.ucapan}</p>
+        <div class="text-xs text-white mt-2">${new Date(data.waktu).toLocaleString('id-ID')}</div>
+      `;
+      messagesList.prepend(div);
     });
+
+    // Update statistik ke UI
+    hadirCountEl.textContent = hadirCount;
+    tidakHadirCountEl.textContent = tidakHadirCount;
   });
 </script>
 </body>
