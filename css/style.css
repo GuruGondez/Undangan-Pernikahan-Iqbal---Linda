@@ -81,3 +81,47 @@
   height: 100vh;
   object-fit: cover;
 }
+
+.statistik {
+  text-align: center;
+  margin: 20px auto;
+  max-width: 700px;
+}
+
+.statistik-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px; /* jarak antar box */
+  margin-top: 15px;
+}
+
+.statistik-box {
+  flex: 1;
+  padding: 30px;
+  border-radius: 30px;
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  margin-left: 15px;
+  margin-right: 15px;
+}
+
+.statistik-box p {
+  margin-top: 10px;
+  font-size: 18px;
+}
+
+/* Warna Hadir */
+.statistik-box.hadir {
+  background-color: #22c55e; /* hijau */
+  border: 2px solid #15803d;
+}
+
+/* Warna Tidak Hadir */
+.statistik-box.tidak-hadir {
+  background-color: #ef4444; /* merah */
+  border: 2px solid #991b1b;
+}
+
