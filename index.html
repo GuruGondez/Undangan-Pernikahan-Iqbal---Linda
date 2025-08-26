@@ -760,32 +760,36 @@
   form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const nama = document.getElementById("nama").value.trim();
-  const ucapan = document.getElementById("ucapan").value.trim();
-  const kehadiranEl = form.querySelector("input[name='kehadiran']:checked");
+  const namaInput = document.getElementById("nama");
+  const ucapanInput = document.getElementById("ucapan");
+  const kehadiranInput = form.querySelector("input[name='kehadiran']:checked");
 
-  if (!nama || !ucapan || !kehadiranEl) {
-    alert("Harap isi semua kolom terlebih dahulu!");
+  if (!namaInput || !ucapanInput || !kehadiranInput) {
+    alert("Form tidak lengkap. Pastikan semua input ada di HTML dan terisi.");
     return;
   }
 
-  const kehadiran = kehadiranEl.value;
+  const nama = namaInput.value.trim();
+  const ucapan = ucapanInput.value.trim();
+  const kehadiran = kehadiranInput.value;
 
-  try {
-    await push(ref(db, "ucapan"), {
-      nama,
-      ucapan,
-      kehadiran,
-      waktu: new Date().toISOString()
-    });
-    form.reset();
-  } catch (error) {
-    console.error("Gagal menyimpan data:", error);
-    alert("Terjadi kesalahan saat menyimpan data!");
+  if (!nama || !ucapan) {
+    alert("Nama dan ucapan wajib diisi!");
+    return;
   }
+
+  // Simpan ke database
+  await push(ref(db, "ucapan"), {
+    nama,
+    ucapan,
+    kehadiran,
+    waktu: new Date().toISOString()
+  });
+
+  form.reset();
 });
 
-  // Realtime listener
+// Realtime listener
   onValue(ref(db, "ucapan"), (snapshot) => {
     messagesList.innerHTML = "";
     let hadirCount = 0;
